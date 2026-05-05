@@ -29,13 +29,19 @@ while True:
                         "You are an expert coding assistant."
                     )
                 }
-            ] + conversation
+            ] + conversation,
+            stream = True  # Enable streaming responses
         )
 
-        reply = response.choices[0].message.content
-        conversation.append({ "role": "assistant", "content": reply })
-        print(f"\n🤖: {reply}\n")
+        full_response = ""
+        for chunk in response:
+            content = chunk.choices[0].delta.content or ""
+            print(content, end = "", flush = True)  # Print the streamed content in real-time
+            full_response += content
 
+        print()  # Print a newline after the full response is received
+
+        conversation.append({ "role": "assistant", "content": full_response })  # Add the assistant's response to the conversation history
     except Exception as e:
         print(f"Error: {e}")
         conversation.pop()  # Remove the last unanswered user message from history if there's an error
